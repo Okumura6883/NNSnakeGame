@@ -24,10 +24,10 @@ public static void main(String[] args) {
 ```
 # NOTE
 1. No comments at all in the code so try your best to read my spaghetti code (:
-2. Population uses Threadpool which can take up A LOT of CPU usage<br> Much lag might be expected while running this
+2. Population.java uses Threadpool which can take up A LOT of CPU usage,<br> much lag might be expected while running this
 ```java
 ExecutorService pool = Executors.newWorkStealingPool();
 pool.execute(SomeHeavyTask);
 ...
 ```
-3. CSE 11 Suck ass. That's it.
+### 3. CSE 11 Suck ass. That's it.
