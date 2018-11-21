@@ -30,4 +30,4 @@ ExecutorService pool = Executors.newWorkStealingPool();
 pool.execute(SomeHeavyTask);
 ...
 ```
-### 3. CSE 11 Suck ass. That's it.
+# CSE 11 Suck ass. That's it.
