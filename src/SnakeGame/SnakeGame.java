@@ -32,7 +32,7 @@ public class SnakeGame extends WindowController
   private int trainTimes;
   private int gameCount = 0;
   private static SnakeGame renderInstance;
-  private static final int DELAY = 10;
+  private static final int DELAY = 25;
   
   public SnakeGame(SnakeTrainer trainer, boolean render) {
     this.grid = new Grid(PA8Constants.DEFAULT_ROWS, PA8Constants.DEFAULT_COLS);

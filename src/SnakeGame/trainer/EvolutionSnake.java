@@ -13,7 +13,7 @@ import SnakeGame.util.*;
 public class EvolutionSnake extends SnakeTrainer implements Comparable<EvolutionSnake>{
 
   public static final String NAME = "EvoSnake";
-  public static final int DEFAULT_LIMIT = 5000;
+  public static final int DEFAULT_LIMIT = 500;
   public static final int DEFAULT_TEST = 1000;
   private static Random generator = new Random();
   int id;

@@ -15,11 +15,11 @@ import SnakeGame.SnakeGame;
 public class Population extends ArrayList<EvolutionSnake> {
 
   public static final double MUTATION_RATE = 0.1;
-  public static final double MUTATION_RANGE = 0.3;
+  public static final double MUTATION_RANGE = 0.2;
   public static final int DEFAULT_GENERATIONS = 10000;
-  public static final int DEFAULT_SELECT = 4;
-  public static final int DEFAULT_POPULATION = 30;
-  public static final int DEFAULT_NEURONS = 20;
+  public static final int DEFAULT_SELECT = 6;
+  public static final int DEFAULT_POPULATION = 50;
+  public static final int DEFAULT_NEURONS = 25;
   private static Random generator = new Random();
   
   private int populationSize;
@@ -47,6 +47,10 @@ public class Population extends ArrayList<EvolutionSnake> {
     populationSize = DEFAULT_POPULATION;
     File[] files = new File(SnakeTrainer.NNPATH + "/Gen" + gen + "/").listFiles();
     int count = 0;
+    if (files == null) {
+      System.out.println(files);
+      return;
+    }
     for (File file : files) {
       NeuralNetwork nNetwork = NeuralNetwork.createFromFile(file);
       add(EvolutionSnake.copyFromNetwork(nNetwork, count++));
@@ -266,15 +270,19 @@ public class Population extends ArrayList<EvolutionSnake> {
       }
     }
     
-    dirs.sort(new Comparator<File>(){
-      public int compare(File file1, File file2) {
-        int a = Integer.parseInt(file1.getName().split("Gen")[1]);
-        int b = Integer.parseInt(file2.getName().split("Gen")[1]);
-        maxGen = (int) Math.max(maxGen, a);
-        maxGen = (int) Math.max(maxGen, b);
-        return b - a;
-      }
-    });
+    for (File file : dirs) {
+      maxGen = (int) Math.max(maxGen, Integer.parseInt(file.getName().split("Gen")[1]));
+    }
+    
+//    dirs.sort(new Comparator<File>(){
+//      public int compare(File file1, File file2) {
+//        int a = Integer.parseInt(file1.getName().split("Gen")[1]);
+//        int b = Integer.parseInt(file2.getName().split("Gen")[1]);
+//        maxGen = (int) Math.max(maxGen, a);
+//        maxGen = (int) Math.max(maxGen, b);
+//        return b - a;
+//      }
+//    });
     
     System.out.println("Found Max Generation: Gen" + maxGen);
     

@@ -128,9 +128,8 @@ public class NeuralNetSnake extends SnakeTrainer{
   private int far;
   
   public static void main(String[] args) {
-    SnakeTrainer trainer = new NeuralNetSnake(TEST, 1000, 1000, "Gen82/Parent1");
-    // SnakeTrainer trainer = createNewTrainer(TEST, 1000);
-    SnakeGame game = new SnakeGame(trainer, true);
+    SnakeTrainer trainer = new NeuralNetSnake(TEST, 1000, 1000, "Gen85/Parent1");
+    new SnakeGame(trainer, true);
   }
 
   public void validateMove() {
