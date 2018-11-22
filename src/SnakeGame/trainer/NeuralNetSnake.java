@@ -11,12 +11,12 @@ import org.neuroph.util.random.WeightsRandomizer;
 import SnakeGame.SnakeGame;
 import SnakeGame.util.*;
 
-public class NeuralNetSnake2 extends SnakeTrainer{
+public class NeuralNetSnake extends SnakeTrainer{
 
   public static final String NAME = "Random2";
   private static Random generator = new Random();
   
-  private NeuralNetSnake2(int mode, int times, int limit, String base) {
+  private NeuralNetSnake(int mode, int times, int limit, String base) {
     super(NAME, base, mode, times, limit, 0);
   }
 
@@ -30,9 +30,9 @@ public class NeuralNetSnake2 extends SnakeTrainer{
   
   public static SnakeTrainer createNewTrainer(int mode, int times, int limit) {
     if (mode == LEARN) {
-      return new NeuralNetSnake2(mode, times, limit, null);
+      return new NeuralNetSnake(mode, times, limit, null);
     } else {
-      return new NeuralNetSnake2(mode, times, limit, NAME);
+      return new NeuralNetSnake(mode, times, limit, NAME);
     }
   }
   
@@ -128,7 +128,7 @@ public class NeuralNetSnake2 extends SnakeTrainer{
   private int far;
   
   public static void main(String[] args) {
-    SnakeTrainer trainer = new NeuralNetSnake2(TEST, 1000, 1000, "Gen82/Parent1");
+    SnakeTrainer trainer = new NeuralNetSnake(TEST, 1000, 1000, "Gen82/Parent1");
     // SnakeTrainer trainer = createNewTrainer(TEST, 1000);
     SnakeGame game = new SnakeGame(trainer, true);
   }
