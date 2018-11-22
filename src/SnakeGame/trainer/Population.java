@@ -20,43 +20,83 @@ public class Population extends ArrayList<EvolutionSnake> {
   public static final int DEFAULT_SELECT = 6;
   public static final int DEFAULT_POPULATION = 50;
   public static final int DEFAULT_NEURONS = 25;
+  public static final int DEFAULT_SAVE = 50;
   private static Random generator = new Random();
   
   private int populationSize;
   private int currentGen;
+  private int generations;
   
   public double mutationRate = MUTATION_RATE;
   public double mutationRange = MUTATION_RANGE;
   
-  public Population(int size) {
-    System.out.println("Population Initializing");
-    populationSize = size;
-    for (int i = 0; i < size; i++) {
-      add(EvolutionSnake.createSnake(i));
+  public Population(int size, int generations, boolean newPop) {
+    
+    System.out.println("Population Initializing\n");
+    
+    this.populationSize = size;
+    if (!newPop) {
+
+      this.generations = generations;
+      List<File> files = Arrays.asList(new File(SnakeTrainer.NNPATH + "/").listFiles());
+      List<File> dirs = new ArrayList<File>();
+      for (File file : files) {
+        if  (file.isDirectory()) {
+          dirs.add(file);
+        }
+      }
+      
+      int maxGen = 0;
+      
+      for (File file : dirs) {
+        maxGen = (int) Math.max(maxGen, Integer.parseInt(file.getName().split("Gen")[1]));
+      }
+      
+      if (maxGen != 0) {
+        
+        currentGen = maxGen;
+        System.out.println("Found Existing Generation: Gen" + maxGen);
+        
+        files = Arrays.asList(new File(SnakeTrainer.NNPATH + "/Gen" + maxGen + "/").listFiles());
+        
+        for (File file : files) {
+          EvolutionSnake oldSnake = EvolutionSnake.createSnake();
+          oldSnake.setNnet(NeuralNetwork.createFromFile(file));
+          add(oldSnake);
+        }
+        this.generations = generations - maxGen;
+      } else {
+        System.out.println("Generating New Generation: Gen");
+      }
     }
-    evolve();
+    populate();
+    reset();
+  }
+  
+  public Population(int size, int generations) {
+    this(size, generations, false);
+  }
+  
+  public Population(int size) {
+    this(size, DEFAULT_GENERATIONS);
   }
   
   public Population() {
     this(DEFAULT_POPULATION);
   }
   
-  public Population(String dir, int gen) {
-    System.out.println("Population Initializing");
-    currentGen = gen;
-    populationSize = DEFAULT_POPULATION;
-    File[] files = new File(SnakeTrainer.NNPATH + "/Gen" + gen + "/").listFiles();
-    int count = 0;
-    if (files == null) {
-      System.out.println(files);
+  public void populate() {
+    if (size() == populationSize) {
+      System.out.println("Population Already populated");
       return;
     }
-    for (File file : files) {
-      NeuralNetwork nNetwork = NeuralNetwork.createFromFile(file);
-      add(EvolutionSnake.copyFromNetwork(nNetwork, count++));
+    for (int i = size(); i < populationSize; i++) {
+      add(EvolutionSnake.createSnake());
     }
-    naturalSelection();
-    evolve(DEFAULT_GENERATIONS - gen);
+  }
+  
+  public ArrayList<EvolutionSnake> selectBestSnakes() {
+    return selectBestSnakes(DEFAULT_SELECT);
   }
   
   public ArrayList<EvolutionSnake> selectBestSnakes(int num) {
@@ -69,86 +109,25 @@ public class Population extends ArrayList<EvolutionSnake> {
     return bestSnakes;
   }
   
-  public ArrayList<EvolutionSnake> selectBestSnakes() {
-    return selectBestSnakes(DEFAULT_SELECT);
+  public EvolutionSnake mutate(EvolutionSnake snake) {
+    return mutate(new ArrayList<EvolutionSnake>(){{add(snake);}}, mutationRate, mutationRange).get(0);
   }
   
-  public void mutate(ArrayList<EvolutionSnake> snakes) {
-    mutate(snakes, mutationRate, mutationRange);
+  public EvolutionSnake mutate(EvolutionSnake snake, double rate, double range) {
+    return mutate(new ArrayList<EvolutionSnake>(){{add(snake);}}, rate, range).get(0);
   }
   
-  public void mutate(ArrayList<EvolutionSnake> snakes, double rate, double range) {
+  public ArrayList<EvolutionSnake> mutate(ArrayList<EvolutionSnake> snakes) {
+    return mutate(snakes, mutationRate, mutationRange);
+  }
+  
+  public ArrayList<EvolutionSnake> mutate(ArrayList<EvolutionSnake> snakes, double rate, double range) {
     for (EvolutionSnake snake: snakes) {
       snake.mutate(rate, range);
     }
+    return snakes;
   }
-  
-  public double getAverageScore() {
-    double sum = 0;
-    for (EvolutionSnake snake : this) {
-      sum += snake.score;
-    }
-    return sum / this.size();
-  }
-  
-  public void saveProgress() {
-    int count = 0;
-    for (EvolutionSnake snake : selectBestSnakes()) {
-      new File(SnakeTrainer.NNPATH + "Gen" + currentGen).mkdirs();
-      snake.newNetwork.save(SnakeTrainer.NNPATH + "Gen" + currentGen + "/Parent" + ++count + ".nnet");
-    }
-  }
-  
-  public double getBestScore() {
-    double sum = 0;
-    int count = 0;
-    for (EvolutionSnake snake : selectBestSnakes()) {
-      sum += snake.score;
-      count++;
-    }
-    return sum / count;
-  }
-  
-  public double getAverageFruitEaten() {
-    double sum = 0;
-    int count = 0;
-    int times = 1000;
-    for (EvolutionSnake snake : this) {
-      sum += snake.totalFruit;
-      count++;
-      times = snake.times;
-    }
-    return sum / (count * times);
-  }
-  
-  public double getBestFruitEaten() {
-    double sum = 0;
-    int count = 0;
-    int times = 1000;
-    for (EvolutionSnake snake : selectBestSnakes()) {
-      sum += snake.totalFruit;
-      count++;
-      times = snake.times;
-    }
-    return sum / (count * times);
-  }
-  
-  public int getMostFruitEaten() {
-    int most = 0;
-    for (EvolutionSnake snake : selectBestSnakes()) {
-      most = Math.max(most, snake.snake.game.mostFruit);
-    }
-    return most;
-  }
-  
-  public int getMostStep() {
-    int most = 0;
-    for (EvolutionSnake snake : selectBestSnakes()) {
-      most = Math.max(most, snake.snake.game.mostStep);
-    }
-    return most;
-  }
-  
+
   public EvolutionSnake makeOffspring(ArrayList<EvolutionSnake> snakes) {
     if (snakes.size() < 2) {
       System.out.println("At least 2 parents are required to make new offsrpings");
@@ -168,7 +147,7 @@ public class Population extends ArrayList<EvolutionSnake> {
     System.out.print("\nPlaying Gen " + currentGen + " ");
     ExecutorService pool = Executors.newWorkStealingPool();
     for (EvolutionSnake snake: this) {
-      pool.execute(new SnakeGame(snake, false));
+      pool.execute(new SnakeGame(snake));
     }
     pool.shutdown();
   }
@@ -184,26 +163,15 @@ public class Population extends ArrayList<EvolutionSnake> {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
     System.out.println();
   }
   
-  public void reindex() {
-    for (int i = 0; i < size(); i++) {
-      get(i).id = i;
-    }
-  }
-  
   public void naturalSelection() {
     
-    // System.out.println("Selecting From Gen " + currentGen);
     ArrayList<EvolutionSnake> bestSnakes = selectBestSnakes();
-//    for (EvolutionSnake snake : bestSnakes) {
-//      printGene(snake.getGenes());
-//    }
     ArrayList<EvolutionSnake> offsprings = new ArrayList<EvolutionSnake>();
     
     for (int i = 0; i < populationSize - bestSnakes.size(); i++) {
@@ -215,32 +183,33 @@ public class Population extends ArrayList<EvolutionSnake> {
     clear();
     addAll(bestSnakes);
     addAll(offsprings);
-    
-    reindex();
-    resetScore();
+    reset();
   }
   
-  public void resetScore() {
-    for (EvolutionSnake snake : this) {
-      snake.reset();
-      snake.done = false;
-    } 
+  /**
+   * Clearing some data in Snake trainers
+   */
+  private void reset() {
+    for (int i = 0; i < size(); i++) {
+      get(i).id = i;
+      get(i).reset();
+    }
   }
   
-  public void report() {
-    System.out.println("Average Score: " + (int) getAverageScore() 
-        + "   Best Scores: " + (int) getBestScore() 
-        + "\nAverage Fruit Eaten: " + (int) getAverageFruitEaten() 
-        + "   Best Average Fruit Eaten: " + (int) getBestFruitEaten()
+  private void report() {
+    System.out.println("Average Score: " + String.format("%.2f" , getAverageScore())
+        + "   Best Scores: " + String.format("%.2f" , getBestScore())
+        + "\nAverage Fruit Eaten: " + String.format("%.4f" , getAverageFruitEaten()) 
+        + "   Best Average Fruit Eaten: " + String.format("%.4f" , getBestFruitEaten())
         + "\nMost Fruit Eaten: " + getMostFruitEaten()
         + "   Most Step: " + getMostStep());
   }
   
-  public void evolve() {
-    evolve(DEFAULT_GENERATIONS);
+  private void simulate() {
+    simulate(generations);
   }
   
-  public void evolve(int times) {
+  private void simulate(int times) {
     for (int i = 0; i < times; i++) {
       play();
       waitForTrainers();
@@ -250,6 +219,28 @@ public class Population extends ArrayList<EvolutionSnake> {
     }
   }
   
+  public static void main(String[] args) {
+    new Population().simulate();
+  }
+  
+  /**
+   * Save the the progress so it can be read later
+   */
+  public void saveProgress() {
+    if (currentGen % DEFAULT_SAVE != 0) {
+      return;
+    }
+    int count = 0;
+    for (EvolutionSnake snake : selectBestSnakes()) {
+      new File(SnakeTrainer.NNPATH + "Gen" + currentGen).mkdirs();
+      snake.save(SnakeTrainer.NNPATH + "Gen" + currentGen + "/Parent" + ++count + ".nnet");
+    }
+  }
+  
+  /**
+   * Override toString to print
+   */
+  @Override
   public String toString() {
     String str = "Population [";
     for (EvolutionSnake snake : this) {
@@ -259,38 +250,63 @@ public class Population extends ArrayList<EvolutionSnake> {
     return str;
   }
   
-  public static int maxGen;
+  // Some useless statics getter below
   
-  public static void continueGeneration() {
-    List<File> files = Arrays.asList(new File(SnakeTrainer.NNPATH + "/").listFiles());
-    List<File> dirs = new ArrayList<File>();
-    for (File file : files) {
-      if  (file.isDirectory()) {
-        dirs.add(file);
-      }
+  public double getAverageScore() {
+    double sum = 0;
+    for (EvolutionSnake trainer : this) {
+      sum += trainer.score;
     }
-    
-    for (File file : dirs) {
-      maxGen = (int) Math.max(maxGen, Integer.parseInt(file.getName().split("Gen")[1]));
-    }
-    
-//    dirs.sort(new Comparator<File>(){
-//      public int compare(File file1, File file2) {
-//        int a = Integer.parseInt(file1.getName().split("Gen")[1]);
-//        int b = Integer.parseInt(file2.getName().split("Gen")[1]);
-//        maxGen = (int) Math.max(maxGen, a);
-//        maxGen = (int) Math.max(maxGen, b);
-//        return b - a;
-//      }
-//    });
-    
-    System.out.println("Found Max Generation: Gen" + maxGen);
-    
-    new Population("Gen", maxGen);
+    return sum / this.size();
   }
   
-  public static void main(String[] args) {
-    // new Population();
-    continueGeneration();
+  public double getBestScore() {
+    double sum = 0;
+    int count = 0;
+    for (EvolutionSnake trainer : selectBestSnakes()) {
+      sum += trainer.score;
+      count++;
+    }
+    return sum / count;
+  }
+  
+  public double getAverageFruitEaten() {
+    double sum = 0;
+    int count = 0;
+    int times = 1000;
+    for (EvolutionSnake trainer : this) {
+      sum += trainer.totalFruit;
+      count++;
+      times = trainer.times;
+    }
+    return sum / (count * times);
+  }
+  
+  public double getBestFruitEaten() {
+    double sum = 0;
+    int count = 0;
+    int times = 1000;
+    for (EvolutionSnake trainer : selectBestSnakes()) {
+      sum += trainer.totalFruit;
+      count++;
+      times = trainer.times;
+    }
+    return sum / (count * times);
+  }
+  
+  public int getMostFruitEaten() {
+    int most = 0;
+    for (EvolutionSnake trainer : selectBestSnakes()) {
+      most = Math.max(most, trainer.game.mostFruit);
+    }
+    return most;
+  }
+  
+  public int getMostStep() {
+    int most = 0;
+    for (EvolutionSnake trainer : selectBestSnakes()) {
+      most = Math.max(most, trainer.game.mostStep);
+    }
+    return most;
   }
 }

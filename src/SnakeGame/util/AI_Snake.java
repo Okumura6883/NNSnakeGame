@@ -15,12 +15,12 @@ public class AI_Snake {
   protected SnakeTrainer trainer;
   public int moves = 0;
   public boolean alive = true;
+  public int starve = 0;
 
   public AI_Snake(SnakeGame game, Grid grid, SnakeTrainer trainer) {
     this.game = game;
     this.grid = grid;
     this.trainer = trainer;
-    trainer.snake = this;
     body = new ArrayList<SnakeSegment>();
     GridCell startCell = grid.getRandomEmptyCell();
     if (game.render) {
@@ -51,10 +51,6 @@ public class AI_Snake {
         }
         
         trainer.validateMove();
-        
-        if (moves > trainer.limit) {
-          die();
-        }
       }
     }
   }
@@ -108,6 +104,13 @@ public class AI_Snake {
         game.respawnFruit();
         trainer.recordFruit();
         grow = true;
+        starve = 0;
+      } else {
+        starve++;
+      }
+      
+      if (starve == game.trainer.limit) {
+        die();
       }
       
       GridCell lastCell = head.getCell();

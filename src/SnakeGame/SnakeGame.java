@@ -3,6 +3,9 @@ package SnakeGame;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import Acme.*;
 import SnakeGame.trainer.*;
 import SnakeGame.util.*;
@@ -10,8 +13,9 @@ import SnakeGame.util.rendering.RenderFruitLoop;
 import objectdraw.*;
 
 
-public class SnakeGame extends WindowController 
-                       implements KeyListener, Runnable{
+public class SnakeGame implements Runnable{
+
+  private static final int DELAY = 20;
   
   public Grid grid;
   public int delay;
@@ -28,50 +32,35 @@ public class SnakeGame extends WindowController
   public FruitLoop fruit;
   private AI_Snake snake;
   
-  private SnakeTrainer trainer;
+  public SnakeTrainer trainer;
   private int trainTimes;
   private int gameCount = 0;
-  private static SnakeGame renderInstance;
-  private static final int DELAY = 25;
+  private DrawingCanvas canvas;
+  public boolean render;
   
-  public SnakeGame(SnakeTrainer trainer, boolean render) {
+  public SnakeGame(SnakeTrainer trainer) {
     this.grid = new Grid(PA8Constants.DEFAULT_ROWS, PA8Constants.DEFAULT_COLS);
     this.delay = DELAY;
-    this.render = render;
+    this.render = false;
     this.trainer = trainer;
     this.trainer.game = this;
     this.trainTimes = trainer.times;
-    if (render && renderInstance == null) {
-      new MainFrame(this, grid.getWidth() + 1, 
-          grid.getHeight() + 1);
-      renderInstance = this;
-    } else {
-      render = false;
-    }
   }
   
-  public void begin() {
-    canvas.addKeyListener(this);
-    play();   
+  public SnakeGame(SnakeTrainer trainer, DrawingCanvas canvas) {
+    this(trainer);
+    this.canvas = canvas;
+    this.render = true;
   }
-  
-  public boolean render = true;
   
   public void play() {
-    
     for (int i = 0; i <= trainTimes; i++) {
       initGame();
     }
-    trainer.learn();
   }
   
   public void initGame() {
-    
 
-    if (gameCount % 1000 == 0 || trainer.mode == SnakeTrainer.TEST && ! (trainer instanceof EvolutionSnake)) {
-      
-    }
-    
     if (gameCount == trainTimes) {
       return;
     }
@@ -86,13 +75,17 @@ public class SnakeGame extends WindowController
     grid.reset();
     respawnFruit();
     snake = new AI_Snake(this, grid, trainer);
-    snake.run();
+    getSnake().run();
   }
   
   public DrawingCanvas getCanvas() {
     return canvas;
   }
   
+  public AI_Snake getSnake() {
+    return snake;
+  }
+
   public void respawnFruit() {
 
     if (fruit != null) {
@@ -118,35 +111,22 @@ public class SnakeGame extends WindowController
     
     gameState = PA8Constants.GAME_OVER;
     mostFruit = Math.max(mostFruit, fruitEaten);
-    mostStep = Math.max(mostStep, snake.moves);
+    mostStep = Math.max(mostStep, getSnake().moves);
     fruit = null;
     fruitEaten = 0;
     gameCount++;
-    totalStep += snake.moves;
+    totalStep += getSnake().moves;
   }
   
   private Color getNewFruitColor() {
     return PA8Constants.FRUIT_LOOP_COLORS[fruitIndex++ 
                                  % PA8Constants.FRUIT_LOOP_COLORS.length];
   }
-
-  public void keyPressed(KeyEvent e) {
-  }
-
-  public void keyReleased(KeyEvent e) {
-    if (snake != null) {
-      snake.toggle();
-    }
-  }
-
-  public void keyTyped(KeyEvent e) {
-    
-  }
-
+  
+  @Override
   public void run() {
     // System.out.println(Thread.currentThread().getName() + " Starting");
     play();
-    trainer.done = true;
     trainer.done();
   }
 }
