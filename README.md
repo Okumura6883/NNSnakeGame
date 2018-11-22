@@ -2,24 +2,20 @@
 Genetic algorithm + cancerous Java 
 
 * All the lib and classpath added so all you need is Eclipse
-+ Driver classes<br>
-1. NeuralNetworkSnake.java
++ Driver classes: <br>
+### 1. AI_Tester.java (for showcase)
 ```java
 public static void main(String[] args) {
-    //                      read from ./Generations/Gen[number]/Parent[number].nnet
-    //                                 [TEST/LEARN][TIMES][LIMIT][FILENAME] 
-    SnakeTrainer trainer = new NeuralNetSnake(TEST, 1000, 1000, "Gen82/Parent1");
-    //                [RENDER/NO RENDER]
-    new SnakeGame(trainer, true);
+    ...
+    //                                                             Path to nnet file here
+    snake.setNnet(NeuralNetwork.createFromFile(SnakeTrainer.NNPATH + "Gen250/Parent1.nnet"));
+    ...
 }
 ```
-2. Population.java
+### 2. Population.java (for training)
 ```java
 public static void main(String[] args) {
-    // Option1: Make a whole new Population. Warning: overwrites existing nnet files
-    new Population();
-    // Option2: Continue evolution from latest generation
-    continueGeneration();
+    new Population().simulate();
 }
 ```
 # NOTE
@@ -30,4 +26,17 @@ ExecutorService pool = Executors.newWorkStealingPool();
 pool.execute(SomeHeavyTask);
 ...
 ```
+3. Tweaking constants (you are very welcomed to tweak these numbers to compare different results)
+```java
+  ...
+  public static final double MUTATION_RATE = 0.1;   // Chance for each gene to mutate
+  public static final double MUTATION_RANGE = 0.2;  // Amplitude/range of a gene can mutate
+  public static final int DEFAULT_GENERATIONS = 10000;  // Keep the thing running over night for now lol
+  public static final int DEFAULT_SELECT = 6;       // How many to choose during each natural selection process
+  public static final int DEFAULT_POPULATION = 50;  // Population size
+  public static final int DEFAULT_NEURONS = 25;     // Number of neurons in each hidden layers (2 hidden layers)
+  public static final int DEFAULT_SAVE = 50;        // Save the neural network file every [this] number of generation
+  ...
+```
+<br><br><br>
 # CSE 11 Suck ass. That's it.
