@@ -21,7 +21,7 @@ public class AI_Tester extends WindowController{
   public static void main(String[] args) {
     AI_Tester window = new AI_Tester();
     EvolutionSnake snake = EvolutionSnake.createSnake();
-    snake.setNnet(NeuralNetwork.createFromFile(SnakeTrainer.NNPATH + "Gen250/Parent1.nnet"));
+    snake.setNnet(NeuralNetwork.createFromFile(SnakeTrainer.NNPATH + "Gen1/Parent1.nnet"));
     game = new SnakeGame(snake, window.canvas);
     new MainFrame(window, args, game.grid.getWidth(), game.grid.getHeight());
   }

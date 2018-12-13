@@ -17,8 +17,8 @@ public class Population extends ArrayList<EvolutionSnake> {
   public static final double MUTATION_RATE = 0.1;
   public static final double MUTATION_RANGE = 0.2;
   public static final int DEFAULT_GENERATIONS = 10000;
-  public static final int DEFAULT_SELECT = 6;
-  public static final int DEFAULT_POPULATION = 50;
+  public static final int DEFAULT_SELECT = 10;
+  public static final int DEFAULT_POPULATION = 80;
   public static final int DEFAULT_NEURONS = 25;
   public static final int DEFAULT_SAVE = 50;
   private static Random generator = new Random();

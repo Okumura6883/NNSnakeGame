@@ -29,8 +29,8 @@ public abstract class PA8Constants {
   // Constants for parsing grid size command line argument
   public static final String GRID_SIZE_DELIM = "x";
   public static final int NUM_GRID_SIZE_DIMENSIONS = 2;
-  public static final int DEFAULT_ROWS = 14;
-  public static final int DEFAULT_COLS = 22;
+  public static final int DEFAULT_ROWS = 15;
+  public static final int DEFAULT_COLS = 21;
 
   // Length of pause in each iteration of the animation loop (in milliseconds)
   public static final int DEFAULT_ANIMATION_DELAY = 120;

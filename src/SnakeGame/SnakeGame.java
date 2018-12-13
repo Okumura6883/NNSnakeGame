@@ -15,7 +15,7 @@ import objectdraw.*;
 
 public class SnakeGame implements Runnable{
 
-  private static final int DELAY = 20;
+  private static final int DELAY = 30;
   
   public Grid grid;
   public int delay;

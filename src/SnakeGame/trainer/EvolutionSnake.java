@@ -12,7 +12,7 @@ public class EvolutionSnake extends SnakeTrainer implements Comparable<Evolution
   public static final int DEFAULT_LIMIT = 100;
   public static final int DEFAULT_TIMES = 100;
   public static final int DEFAULT_INPUT = 5;
-  public static final int DEFAULT_HIDDEN_NEURONS = 16;
+  public static final int DEFAULT_HIDDEN_NEURONS = 20;
   public static final int DEFAULT_OUTPUT = 1;
   private static Random generator = new Random();
   public double score;
@@ -24,6 +24,10 @@ public class EvolutionSnake extends SnakeTrainer implements Comparable<Evolution
     super(times, limit, DEFAULT_INPUT, neurons, DEFAULT_OUTPUT);
     this.name = "Evo Snake";
     this.id = id;
+  }
+  
+  public double getAverageFruit() {
+    return (double) totalFruit / times; 
   }
   
   public static EvolutionSnake createSnake() {
@@ -72,8 +76,8 @@ public class EvolutionSnake extends SnakeTrainer implements Comparable<Evolution
   }
   
   public void recordDeath() {
-//    death++;
-//    score -= 100 / (times * limit);
+    death++;
+    score -= 3000 / (times * limit);
   }
   
   public void recordFruit() {
@@ -81,7 +85,7 @@ public class EvolutionSnake extends SnakeTrainer implements Comparable<Evolution
   }
   
   public void validateMove() {
-    score -= 100 / (times * limit);
+    score -= 50 / (times * limit);
   }
   
   public EvolutionSnake copyFromGenes(double[] genes) {
