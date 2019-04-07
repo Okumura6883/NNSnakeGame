@@ -39,4 +39,3 @@ pool.execute(SomeHeavyTask);
   ...
 ```
 <br><br><br>
-# CSE 11 Suck ass. That's it.
