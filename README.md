@@ -1,5 +1,5 @@
 # EvolutionSnake
-Genetic algorithm + cancerous Java 
+Genetic algorithm implemented in Java 
 
 * All the lib and classpath added so all you need is Eclipse
 + Driver classes: <br>
@@ -19,7 +19,7 @@ public static void main(String[] args) {
 }
 ```
 # NOTE
-1. No comments at all in the code so try your best to read my spaghetti code (:
+1. This is a very early project (abandoned as well) and the there's no comments. It was mainly a fun project while I was getting bored in class and I learned all the concepts and algorithms from some Youtube videos. 
 2. Population.java uses Threadpool which can take up A LOT of CPU usage,<br> much lag might be expected while running this
 ```java
 ExecutorService pool = Executors.newWorkStealingPool();
